@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#111827">
-<title>Vàng vs. Tiết kiệm — Sổ theo dõi 5 năm</title>
+<title>Vàng vs. Tiết kiệm — Kèo 3 năm</title>
 <style>
 :root{--bg:#0b1120;--panel:#151e30;--panel2:#1d2940;--line:#2c3a52;--text:#eef2ff;--muted:#a8b3c7;--gold:#f5c451;--blue:#72a7ff;--green:#5ee0a0;--red:#ff8585}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17243a 0,#0b1120 55%);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -29,7 +29,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
   <header class="top">
     <div>
       <h1><span>VÀNG</span> vs. TIẾT KIỆM</h1>
-      <p class="sub">Sổ theo dõi đầu tư · DCA vàng · Lãi suất thay đổi theo từng kỳ</p>
+      <p class="sub">Sổ theo dõi đầu tư · Kèo 3 năm · Lãi tiết kiệm nhập gốc khi đáo hạn</p>
     </div>
     <div class="actions">
       <button class="btn" id="exportBtn">Xuất dữ liệu</button>
@@ -133,7 +133,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
       </div>
 
       <div id="panel-rates" class="hidden">
-        <p class="small">Thêm một kỳ lãi suất với ngày bắt đầu áp dụng. Lãi được mô phỏng theo lãi suất năm, cộng dồn hằng ngày. Nếu ngân hàng trả lãi theo quy tắc khác, kết quả thực tế có thể khác.</p>
+        <p class="small">Thêm kỳ lãi suất theo ngày bắt đầu và ngày đáo hạn. Lãi được ước tính theo ngày, chỉ nhập vào gốc khi đến ngày kết thúc kỳ; nếu chưa nhập kỳ tiếp theo thì sau đáo hạn sẽ không tự giả định lãi suất.</p>
         <form id="rateForm">
           <div class="field"><label for="rateStart">Ngày bắt đầu áp dụng</label><input id="rateStart" type="date" required></div>
           <div class="field"><label for="rateEnd">Ngày kết thúc (để trống nếu đang áp dụng)</label><input id="rateEnd" type="date"></div>
@@ -173,15 +173,15 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
   const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const uid = () => Math.random().toString(36).slice(2,10);
   const defaultState = () => ({
-    settings:{startDate:"2026-03-01",endDate:"2031-03-01",goldPrice:167,goldUnit:"cây",note:""},
+    settings:{startDate:"2026-04-01",endDate:"2029-04-01",goldPrice:139,goldUnit:"cây",note:""},
     gold:[
-      {id:uid(),type:"buy",date:"2026-03-01",qty:4,price:167,fee:0,memo:"Vốn ban đầu"}
+      {id:uid(),type:"buy",date:"2026-04-01",qty:4,price:166,fee:0,memo:"Vốn ban đầu — tổng 664 triệu"}
     ],
     savings:[
-      {id:uid(),type:"deposit",date:"2026-03-01",amount:668,memo:"Vốn ban đầu"}
+      {id:uid(),type:"deposit",date:"2026-04-01",amount:664,memo:"Vốn ban đầu"}
     ],
     rates:[
-      {id:uid(),start:"2026-03-01",end:"",rate:9,memo:"Lãi suất ban đầu — sửa theo thực tế"}
+      {id:uid(),start:"2026-04-01",end:"2027-04-01",rate:9.2,memo:"Kỳ hạn 12 tháng đầu; lãi trả khi đáo hạn"}
     ]
   });
   let state;
@@ -196,10 +196,31 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
     ["goldDate","savingsDate","rateStart"].forEach(id=>{if(!$ (id).value)$(id).value=today();});
   }
   function getRate(date){
-    const applicable=state.rates.filter(r=>r.start<=date && (!r.end || date<=r.end)).sort((a,b)=>b.start.localeCompare(a.start));
-    if(applicable.length) return Math.max(0,Number(applicable[0].rate)||0)/100;
-    const earlier=state.rates.filter(r=>r.start<=date).sort((a,b)=>b.start.localeCompare(a.start));
-    return earlier.length?Math.max(0,Number(earlier[0].rate)||0)/100:0;
+    const applicable=state.rates.filter(r=>r.start<=date && (!r.end || date<r.end)).sort((a,b)=>b.start.localeCompare(a.start));
+    return applicable.length ? Math.max(0,Number(applicable[0].rate)||0)/100 : 0;
+  }
+  function calculateSavings(asOf){
+    const transactions=state.savings.filter(t=>t.date<=asOf).slice().sort((a,b)=>a.date.localeCompare(b.date));
+    let balance=0, interestTotal=0, pendingInterest=0, txIndex=0;
+    const startDay=state.settings.startDate;
+    const dayCount=Math.max(0,Math.min(20000,dateDiff(startDay,asOf)));
+    for(let i=0;i<=dayCount;i++){
+      const d=addDays(startDay,i);
+      while(txIndex<transactions.length && transactions[txIndex].date===d){
+        const t=transactions[txIndex++];
+        if(t.type==="deposit") balance+=mil(t.amount);
+        else balance-=Math.min(balance,mil(t.amount));
+      }
+      // Bank pays interest at maturity/end date; only then is it added to principal.
+      const matured=state.rates.filter(r=>r.end===d && r.start<d).sort((a,b)=>b.start.localeCompare(a.start));
+      if(matured.length && pendingInterest>0){balance+=pendingInterest;pendingInterest=0;}
+      if(i<dayCount && balance>0) {
+        const interest=balance*getRate(d)/365;
+        pendingInterest+=interest;
+        interestTotal+=interest;
+      }
+    }
+    return {balance,interestTotal,pendingInterest,dayCount};
   }
   function calculate(){
     const start=state.settings.startDate, end=state.settings.endDate;
@@ -220,26 +241,9 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
     const goldValue=qty*mil(state.settings.goldPrice)+saleCash;
     const goldProfit=goldValue-bought;
     const savingsTx=state.savings.filter(t=>t.date<=asOf).slice().sort((a,b)=>a.date.localeCompare(b.date));
-    let balance=0, interestTotal=0, txIndex=0;
-    const startDay = start;
-    // Rebuild savings balance day by day from start date, applying dated transactions and daily accrual.
-    const dayCount=Math.max(0,Math.min(20000,dateDiff(startDay,asOf)));
-    const transactions=savingsTx;
-    for(let i=0;i<=dayCount;i++){
-      const d=addDays(startDay,i);
-      while(txIndex<transactions.length && transactions[txIndex].date===d){
-        const t=transactions[txIndex++];
-        if(t.type==="deposit") balance+=mil(t.amount);
-        else balance-=Math.min(balance,mil(t.amount));
-      }
-      if(i<dayCount && balance>0){
-        const interest=balance*getRate(d)/365;
-        balance+=interest; interestTotal+=interest;
-      }
-    }
-    // Transactions earlier than start date (if any) are applied in date order to avoid silently losing them.
-    const earlier=transactions.filter(t=>t.date<startDay);
-    if(earlier.length){ balance=0;interestTotal=0;txIndex=0; }
+    const savings=calculateSavings(asOf);
+    const balance=savings.balance, interestTotal=savings.interestTotal;
+    const dayCount=savings.dayCount;
     const goldInitial = state.gold.filter(t=>t.date<=asOf && t.type==="buy").reduce((s,t)=>s+mil(t.qty*t.price+(Number(t.fee)||0)),0);
     const savingsNetDeposits=savingsTx.reduce((s,t)=>s+(t.type==="deposit"?mil(t.amount):-mil(t.amount)),0);
     const be=qty>0?(balance-saleCash)/qty:NaN;
@@ -290,14 +294,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
       const g=state.gold.filter(t=>t.date<=d).slice().sort((a,b)=>a.date.localeCompare(b.date));
       let q=0,cost=0,sale=0;
       g.forEach(t=>{if(t.type==="buy"){q+=+t.qty;cost+=mil(t.qty*t.price)+mil(t.fee)}else{let n=Math.min(q,+t.qty),avg=q?cost/q:0;q-=n;cost-=avg*n;sale+=mil(n*t.price)-mil(t.fee)}});
-      let bal=0,interest=0;
-      const tx=state.savings.filter(t=>t.date<=d).slice().sort((a,b)=>a.date.localeCompare(b.date));
-      const first=state.settings.startDate;
-      for(let i=0;i<=Math.max(0,dateDiff(first,d));i++){
-        let day=addDays(first,i);
-        tx.filter(t=>t.date===day).forEach(t=>{if(t.type==="deposit")bal+=mil(t.amount);else bal-=Math.min(bal,mil(t.amount))});
-        if(i<dateDiff(first,d)&&bal>0){let inc=bal*getRate(day)/365;bal+=inc;interest+=inc;}
-      }
+      const bal=calculateSavings(d).balance;
       return {date:d,gold:q*mil(state.settings.goldPrice)+sale,savings:bal};
     });
     const max=Math.max(1,...data.map(d=>Math.max(d.gold,d.savings)))*1.08;
