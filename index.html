@@ -1,35 +1,335 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vàng vs. Tiết kiệm</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 650px;
-      margin: 40px auto;
-      padding: 20px;
-      background: #111827;
-      color: white;
-    }
-    .card {
-      padding: 24px;
-      border-radius: 16px;
-      background: #1f2937;
-    }
-    h1 { color: #fbbf24; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>Vàng vs. Tiết kiệm — Sổ theo dõi 5 năm</title>
+<style>
+:root{--bg:#0b1120;--panel:#151e30;--panel2:#1d2940;--line:#2c3a52;--text:#eef2ff;--muted:#a8b3c7;--gold:#f5c451;--blue:#72a7ff;--green:#5ee0a0;--red:#ff8585}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17243a 0,#0b1120 55%);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px 16px 56px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.1;margin:0 0 8px}h1 span{color:var(--gold)}h2{font-size:18px;margin:0 0 14px}h3{font-size:15px;margin:0 0 10px}.sub,.muted{color:var(--muted)}.sub{margin:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:10px 13px;font-weight:650;cursor:pointer}.btn:hover{filter:brightness(1.15)}.btn.primary{background:var(--gold);border-color:var(--gold);color:#241b08}.btn.danger{border-color:#70404a;color:#ffb4b4}
+.notice{border:1px solid #67562d;background:#2b2518;color:#f8e7b0;border-radius:12px;padding:12px 14px;margin:14px 0 20px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}.card{background:linear-gradient(145deg,rgba(24,35,55,.97),rgba(18,27,44,.97));border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+.metric-label{font-size:13px;color:var(--muted);margin-bottom:5px}.metric{font-size:clamp(22px,3vw,31px);font-weight:800;letter-spacing:-.6px;overflow-wrap:anywhere}.gold{color:var(--gold)}.blue{color:var(--blue)}.green{color:var(--green)}.red{color:var(--red)}.small{font-size:12px;color:var(--muted)}.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:750;background:#27364d;color:var(--text)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.inner{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}.row{display:flex;justify-content:space-between;align-items:center;gap:12px}.row+.row{margin-top:9px}.line{height:1px;background:var(--line);margin:13px 0}
+form{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}.field{grid-column:span 4;min-width:0}.field.w6{grid-column:span 6}.field.w8{grid-column:span 8}.field.w12{grid-column:span 12}label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}input,select{width:100%;background:#0e1728;border:1px solid #34435b;color:var(--text);border-radius:9px;padding:10px 11px;font:inherit;min-width:0}input:focus,select:focus{outline:2px solid #577cb4;border-color:transparent}.form-actions{grid-column:span 12;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tab{background:transparent;border:1px solid var(--line);color:var(--muted);padding:9px 12px;border-radius:9px;cursor:pointer}.tab.active{background:var(--panel2);color:var(--text);border-color:#617da6}
+.hidden{display:none!important}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}th,td{text-align:left;padding:10px 9px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:600}td.num,th.num{text-align:right}.empty{text-align:center;color:var(--muted);padding:22px}
+canvas{width:100%;height:280px;display:block}.legend{display:flex;gap:15px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:8px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+footer{margin-top:20px;color:var(--muted);font-size:12px}
+@media(max-width:760px){main{padding:18px 12px 40px}.span-8,.span-6,.span-4{grid-column:span 12}.two{grid-template-columns:1fr}.field,.field.w6,.field.w8{grid-column:span 6}.metric{font-size:25px}.card{padding:15px}}
+@media(max-width:430px){.field,.field.w6,.field.w8{grid-column:span 12}.actions{width:100%}.actions .btn{flex:1}}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Vàng vs. Tiết kiệm</h1>
-    <p>Vốn ban đầu: 668.000.000 VNĐ</p>
-    <p>Vàng: 4 cây × 167 triệu</p>
-    <p>Lãi suất tiết kiệm: 9%/năm</p>
-    <p>Thời hạn: 5 năm</p>
-    <h2>Chuẩn bị tính giá hòa vốn...</h2>
-  </div>
+<main>
+  <header class="top">
+    <div>
+      <h1><span>VÀNG</span> vs. TIẾT KIỆM</h1>
+      <p class="sub">Sổ theo dõi đầu tư · DCA vàng · Lãi suất thay đổi theo từng kỳ</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="exportBtn">Xuất dữ liệu</button>
+      <button class="btn" id="importBtn">Nhập dữ liệu</button>
+      <button class="btn danger" id="resetBtn">Đặt lại mẫu</button>
+      <input type="file" id="importFile" accept="application/json,.json" class="hidden">
+    </div>
+  </header>
+
+  <div class="notice">Dữ liệu được lưu trong trình duyệt trên thiết bị này (localStorage). Hãy bấm <b>Xuất dữ liệu</b> định kỳ để sao lưu; dữ liệu không tự đồng bộ giữa các thiết bị. Giá vàng hiện tại cần được nhập thủ công trong phiên bản này.</div>
+
+  <section class="grid">
+    <div class="card span-4">
+      <div class="metric-label">Giá trị vàng nếu bán hôm nay</div>
+      <div class="metric gold" id="goldValue">—</div>
+      <div class="small" id="goldDetails">—</div>
+    </div>
+    <div class="card span-4">
+      <div class="metric-label">Số dư tiết kiệm ước tính</div>
+      <div class="metric blue" id="savingsValue">—</div>
+      <div class="small" id="savingsDetails">—</div>
+    </div>
+    <div class="card span-4">
+      <div class="metric-label">Bảng tỷ số hiện tại</div>
+      <div class="metric" id="leaderValue">—</div>
+      <div class="small" id="gapDetails">—</div>
+    </div>
+
+    <div class="card span-6">
+      <h2>🎯 Giá vàng cần đạt để hòa</h2>
+      <div class="metric gold" id="breakEven">—</div>
+      <div class="small" id="breakEvenDetails">Giá thu mua lại cần đạt trên mỗi cây/lượng.</div>
+      <div class="line"></div>
+      <div class="row"><span class="muted">Giá thu mua bạn nhập</span><b id="currentPrice">—</b></div>
+      <div class="row"><span class="muted">Còn thiếu / vượt giá hòa</span><b id="priceGap">—</b></div>
+      <div class="row"><span class="muted">Biến động cần thiết</span><b id="priceGapPct">—</b></div>
+    </div>
+    <div class="card span-6">
+      <h2>📈 Tiến độ kèo</h2>
+      <div class="row"><span class="muted">Ngày bắt đầu</span><b id="startLabel">—</b></div>
+      <div class="row"><span class="muted">Ngày kết thúc</span><b id="endLabel">—</b></div>
+      <div class="row"><span class="muted">Thời gian đã qua</span><b id="elapsed">—</b></div>
+      <div class="line"></div>
+      <div class="row"><span class="muted">Tổng vốn mua vàng</span><b id="goldCost">—</b></div>
+      <div class="row"><span class="muted">Tiền bán vàng đã thu</span><b id="goldSold">—</b></div>
+      <div class="row"><span class="muted">Lãi/lỗ vàng (ước tính)</span><b id="goldProfit">—</b></div>
+      <div class="row"><span class="muted">Lãi tiết kiệm (ước tính)</span><b id="savingsInterest">—</b></div>
+    </div>
+
+    <div class="card span-12">
+      <div class="row" style="flex-wrap:wrap;margin-bottom:10px">
+        <div><h2 style="margin-bottom:3px">Khoảng cách giữa hai bên</h2><div class="small">Tiết kiệm tính theo lãi suất từng kỳ. Đường vàng dùng giá thu mua hiện tại cho số vàng từng ngày; chưa có lịch sử giá vàng quá khứ.</div></div>
+        <div class="pill" id="chartSummary">—</div>
+      </div>
+      <canvas id="chart" aria-label="Biểu đồ tài sản vàng và tiết kiệm"></canvas>
+      <div class="legend"><span><i class="dot" style="background:#f5c451"></i>Vàng (số vàng còn lại × giá thu mua hiện tại + tiền bán đã thu)</span><span><i class="dot" style="background:#72a7ff"></i>Tiết kiệm</span></div>
+    </div>
+
+    <div class="card span-12">
+      <h2>⚙️ Thiết lập chung</h2>
+      <form id="settingsForm">
+        <div class="field"><label for="startDate">Ngày bắt đầu kèo</label><input id="startDate" type="date" required></div>
+        <div class="field"><label for="endDate">Ngày kết thúc kèo</label><input id="endDate" type="date" required></div>
+        <div class="field"><label for="goldPrice">Giá tiệm thu mua vàng hôm nay (triệu/cây)</label><input id="goldPrice" type="number" min="0" step="0.01" required></div>
+        <div class="field"><label for="goldUnit">Đơn vị vàng</label><select id="goldUnit"><option value="cây">Cây/lượng</option><option value="chỉ">Chỉ</option></select></div>
+        <div class="field"><label for="currency">Đơn vị tiền</label><select id="currency"><option value="VND">VNĐ</option></select></div>
+        <div class="field"><label for="note">Ghi chú kèo (không bắt buộc)</label><input id="note" type="text" placeholder="Ví dụ: Kèo với bạn A"></div>
+        <div class="form-actions"><button class="btn primary" type="submit">Lưu thiết lập</button><span class="small">Giá vàng nhập ở đây là giá tiệm mua lại từ bạn, không phải giá bán ra.</span></div>
+      </form>
+    </div>
+
+    <div class="card span-12">
+      <h2>➕ Ghi giao dịch</h2>
+      <div class="tabs">
+        <button class="tab active" data-tab="gold">Mua / bán vàng</button>
+        <button class="tab" data-tab="savings">Gửi / rút tiết kiệm</button>
+        <button class="tab" data-tab="rates">Lãi suất theo kỳ</button>
+      </div>
+
+      <div id="panel-gold">
+        <form id="goldForm">
+          <div class="field"><label for="goldType">Loại giao dịch</label><select id="goldType"><option value="buy">Mua vàng (DCA)</option><option value="sell">Bán vàng</option></select></div>
+          <div class="field"><label for="goldDate">Ngày giao dịch</label><input id="goldDate" type="date" required></div>
+          <div class="field"><label for="goldQty">Số cây/lượng</label><input id="goldQty" type="number" min="0.0001" step="0.0001" required></div>
+          <div class="field"><label for="goldTxnPrice">Giá mỗi cây/lượng (triệu VNĐ)</label><input id="goldTxnPrice" type="number" min="0" step="0.01" required></div>
+          <div class="field"><label for="goldFee">Phí giao dịch (triệu VNĐ)</label><input id="goldFee" type="number" min="0" step="0.001" value="0" required></div>
+          <div class="field"><label for="goldMemo">Ghi chú</label><input id="goldMemo" type="text" placeholder="Ví dụ: DCA tháng 6"></div>
+          <div class="form-actions"><button class="btn primary" type="submit">Thêm giao dịch vàng</button></div>
+        </form>
+      </div>
+
+      <div id="panel-savings" class="hidden">
+        <form id="savingsForm">
+          <div class="field"><label for="savingsType">Loại giao dịch</label><select id="savingsType"><option value="deposit">Gửi thêm tiền</option><option value="withdraw">Rút tiền</option></select></div>
+          <div class="field"><label for="savingsDate">Ngày giao dịch</label><input id="savingsDate" type="date" required></div>
+          <div class="field"><label for="savingsAmount">Số tiền (triệu VNĐ)</label><input id="savingsAmount" type="number" min="0.001" step="0.001" required></div>
+          <div class="field w8"><label for="savingsMemo">Ghi chú</label><input id="savingsMemo" type="text" placeholder="Ví dụ: Tái tục / nạp thêm"></div>
+          <div class="form-actions"><button class="btn primary" type="submit">Thêm giao dịch tiết kiệm</button></div>
+        </form>
+      </div>
+
+      <div id="panel-rates" class="hidden">
+        <p class="small">Thêm một kỳ lãi suất với ngày bắt đầu áp dụng. Lãi được mô phỏng theo lãi suất năm, cộng dồn hằng ngày. Nếu ngân hàng trả lãi theo quy tắc khác, kết quả thực tế có thể khác.</p>
+        <form id="rateForm">
+          <div class="field"><label for="rateStart">Ngày bắt đầu áp dụng</label><input id="rateStart" type="date" required></div>
+          <div class="field"><label for="rateEnd">Ngày kết thúc (để trống nếu đang áp dụng)</label><input id="rateEnd" type="date"></div>
+          <div class="field"><label for="ratePercent">Lãi suất năm (%)</label><input id="ratePercent" type="number" min="0" max="100" step="0.01" required></div>
+          <div class="field w8"><label for="rateMemo">Ghi chú</label><input id="rateMemo" type="text" placeholder="Ví dụ: Tái tục 12 tháng"></div>
+          <div class="form-actions"><button class="btn primary" type="submit">Thêm kỳ lãi suất</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card span-12">
+      <div class="row" style="flex-wrap:wrap;margin-bottom:12px"><h2 style="margin:0">📚 Lịch sử dữ liệu</h2><span class="small">Có thể xóa từng dòng nếu nhập nhầm.</span></div>
+      <div class="tabs">
+        <button class="tab active" data-list="gold">Giao dịch vàng</button>
+        <button class="tab" data-list="savings">Giao dịch tiết kiệm</button>
+        <button class="tab" data-list="rates">Lãi suất</button>
+      </div>
+      <div id="list-gold" class="tablewrap"></div>
+      <div id="list-savings" class="tablewrap hidden"></div>
+      <div id="list-rates" class="tablewrap hidden"></div>
+    </div>
+  </section>
+  <footer>Đây là công cụ theo dõi cá nhân, không phải tư vấn đầu tư. Số liệu là ước tính dựa trên thông tin bạn nhập. Mọi giá trị tiền trong biểu mẫu giao dịch nhập theo đơn vị triệu VNĐ; màn hình tổng quan hiển thị VNĐ. Mỗi cây/lượng được quy ước là một đơn vị vàng theo cách bạn chọn.</footer>
+</main>
+
+<script>
+(() => {
+  const KEY = "vangTietKiemTracker_v1";
+  const $ = id => document.getElementById(id);
+  const today = () => new Date().toISOString().slice(0,10);
+  const addDays = (s,n) => { const d=new Date(s+"T12:00:00"); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); };
+  const dateDiff = (a,b) => Math.floor((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/86400000);
+  const money = n => new Intl.NumberFormat("vi-VN",{style:"currency",currency:"VND",maximumFractionDigits:0}).format(Number.isFinite(n)?n:0);
+  const mil = n => (Number(n)||0)*1e6;
+  const fmtMil = n => (n/1e6).toLocaleString("vi-VN",{maximumFractionDigits:2})+" triệu";
+  const pct = n => (Number.isFinite(n)?n:0).toLocaleString("vi-VN",{maximumFractionDigits:2})+"%";
+  const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const uid = () => Math.random().toString(36).slice(2,10);
+  const defaultState = () => ({
+    settings:{startDate:"2026-03-01",endDate:"2031-03-01",goldPrice:167,goldUnit:"cây",note:""},
+    gold:[
+      {id:uid(),type:"buy",date:"2026-03-01",qty:4,price:167,fee:0,memo:"Vốn ban đầu"}
+    ],
+    savings:[
+      {id:uid(),type:"deposit",date:"2026-03-01",amount:668,memo:"Vốn ban đầu"}
+    ],
+    rates:[
+      {id:uid(),start:"2026-03-01",end:"",rate:9,memo:"Lãi suất ban đầu — sửa theo thực tế"}
+    ]
+  });
+  let state;
+  try { state=JSON.parse(localStorage.getItem(KEY)) || defaultState(); } catch { state=defaultState(); }
+  function save(){localStorage.setItem(KEY,JSON.stringify(state));render();}
+  function syncSettings(){
+    $("startDate").value=state.settings.startDate;
+    $("endDate").value=state.settings.endDate;
+    $("goldPrice").value=state.settings.goldPrice;
+    $("goldUnit").value=state.settings.goldUnit||"cây";
+    $("note").value=state.settings.note||"";
+    ["goldDate","savingsDate","rateStart"].forEach(id=>{if(!$ (id).value)$(id).value=today();});
+  }
+  function getRate(date){
+    const applicable=state.rates.filter(r=>r.start<=date && (!r.end || date<=r.end)).sort((a,b)=>b.start.localeCompare(a.start));
+    if(applicable.length) return Math.max(0,Number(applicable[0].rate)||0)/100;
+    const earlier=state.rates.filter(r=>r.start<=date).sort((a,b)=>b.start.localeCompare(a.start));
+    return earlier.length?Math.max(0,Number(earlier[0].rate)||0)/100:0;
+  }
+  function calculate(){
+    const start=state.settings.startDate, end=state.settings.endDate;
+    const now=today();
+    const asOf = now < start ? start : (now > end ? end : now);
+    const goldTx=state.gold.filter(t=>t.date<=asOf).slice().sort((a,b)=>a.date.localeCompare(b.date));
+    let qty=0, cost=0, saleCash=0, bought=0, soldQty=0;
+    goldTx.forEach(t=>{
+      const q=Number(t.qty)||0, price=mil(t.price), fee=mil(t.fee);
+      if(t.type==="buy"){qty+=q;cost+=q*price+fee;bought+=q*price+fee;}
+      else {
+        const actual=Math.min(qty,q);
+        const proceeds=actual*price-fee;
+        const avg=qty>0?cost/qty:0;
+        cost-=avg*actual; qty-=actual; soldQty+=actual; saleCash+=proceeds;
+      }
+    });
+    const goldValue=qty*mil(state.settings.goldPrice)+saleCash;
+    const goldProfit=goldValue-bought;
+    const savingsTx=state.savings.filter(t=>t.date<=asOf).slice().sort((a,b)=>a.date.localeCompare(b.date));
+    let balance=0, interestTotal=0, txIndex=0;
+    const startDay = start;
+    // Rebuild savings balance day by day from start date, applying dated transactions and daily accrual.
+    const dayCount=Math.max(0,Math.min(20000,dateDiff(startDay,asOf)));
+    const transactions=savingsTx;
+    for(let i=0;i<=dayCount;i++){
+      const d=addDays(startDay,i);
+      while(txIndex<transactions.length && transactions[txIndex].date===d){
+        const t=transactions[txIndex++];
+        if(t.type==="deposit") balance+=mil(t.amount);
+        else balance-=Math.min(balance,mil(t.amount));
+      }
+      if(i<dayCount && balance>0){
+        const interest=balance*getRate(d)/365;
+        balance+=interest; interestTotal+=interest;
+      }
+    }
+    // Transactions earlier than start date (if any) are applied in date order to avoid silently losing them.
+    const earlier=transactions.filter(t=>t.date<startDay);
+    if(earlier.length){ balance=0;interestTotal=0;txIndex=0; }
+    const goldInitial = state.gold.filter(t=>t.date<=asOf && t.type==="buy").reduce((s,t)=>s+mil(t.qty*t.price+(Number(t.fee)||0)),0);
+    const savingsNetDeposits=savingsTx.reduce((s,t)=>s+(t.type==="deposit"?mil(t.amount):-mil(t.amount)),0);
+    const be=qty>0?(balance-saleCash)/qty:NaN;
+    return {asOf,qty,cost,bought,soldQty,saleCash,goldValue,goldProfit,balance,interestTotal,be,goldInitial,savingsNetDeposits,dayCount};
+  }
+  function render(){
+    syncSettings();
+    const c=calculate();
+    $("goldValue").textContent=money(c.goldValue);
+    $("goldDetails").textContent=`${c.qty.toLocaleString("vi-VN",{maximumFractionDigits:4})} ${state.settings.goldUnit} còn lại · giá thu mua ${Number(state.settings.goldPrice).toLocaleString("vi-VN")} triệu/${state.settings.goldUnit}`;
+    $("savingsValue").textContent=money(c.balance);
+    $("savingsDetails").textContent=`Lãi cộng dồn ước tính: ${money(c.interestTotal)}`;
+    const gap=c.goldValue-c.balance;
+    $("leaderValue").textContent=Math.abs(gap)<1?"ĐANG HÒA":gap>0?"VÀNG ĐANG DẪN":"TIẾT KIỆM DẪN";
+    $("leaderValue").className="metric "+(Math.abs(gap)<1?"":gap>0?"gold":"blue");
+    $("gapDetails").textContent=gap>0?`Vàng hơn ${money(gap)}`:gap<0?`Vàng kém ${money(-gap)}`:"Hai bên đang ngang nhau";
+    $("breakEven").textContent=Number.isFinite(c.be)&&c.be>=0?`${(c.be/1e6).toLocaleString("vi-VN",{maximumFractionDigits:2})} triệu/${state.settings.goldUnit}`:"Chưa tính được";
+    const price=mil(state.settings.goldPrice), pGap=Number.isFinite(c.be)?c.be-price:NaN;
+    $("currentPrice").textContent=money(price);
+    $("priceGap").textContent=Number.isFinite(pGap)?(pGap>0?"Còn thiếu ":"Vượt ")+money(Math.abs(pGap))+"/đơn vị":"—";
+    $("priceGap").className=Number.isFinite(pGap)?(pGap>0?"red":"green"):"";
+    $("priceGapPct").textContent=Number.isFinite(pGap)&&price>0?`${pGap>0?"cần tăng ":"có thể giảm "}${pct(Math.abs(pGap)/price*100)}`:"—";
+    $("breakEvenDetails").textContent=c.qty>0?`Cần giá thu mua lại để ${c.qty.toLocaleString("vi-VN",{maximumFractionDigits:4})} ${state.settings.goldUnit} (cộng tiền bán vàng đã thu) bằng số dư tiết kiệm.`:"Bạn chưa còn vàng; hãy thêm giao dịch mua.";
+    $("startLabel").textContent=state.settings.startDate;
+    $("endLabel").textContent=state.settings.endDate;
+    $("elapsed").textContent=`${Math.max(0,c.dayCount)} ngày`;
+    $("goldCost").textContent=money(c.bought);
+    $("goldSold").textContent=money(c.saleCash);
+    $("goldProfit").textContent=money(c.goldProfit);
+    $("goldProfit").className=c.goldProfit>=0?"green":"red";
+    $("savingsInterest").textContent=money(c.interestTotal);
+    $("chartSummary").textContent=gap>0?`Vàng hơn ${fmtMil(gap)}`:gap<0?`Tiết kiệm hơn ${fmtMil(-gap)}`:"Đang hòa";
+    drawChart();
+    renderLists();
+  }
+  function drawChart(){
+    const canvas=$("chart"), rect=canvas.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    canvas.width=Math.max(300,rect.width*dpr); canvas.height=280*dpr;
+    const ctx=canvas.getContext("2d"); ctx.scale(dpr,dpr);
+    const w=canvas.width/dpr,h=280,pad={l:60,r:14,t:18,b:34},pw=w-pad.l-pad.r,ph=h-pad.t-pad.b;
+    ctx.clearRect(0,0,w,h);
+    const start=state.settings.startDate, end=state.settings.endDate, now=today();
+    const stop=now<start?start:now>end?end:now;
+    const total=Math.max(1,dateDiff(start,stop));
+    const dates=[]; for(let i=0;i<=total;i+=Math.max(1,Math.floor(total/90)))dates.push(addDays(start,i));
+    if(dates[dates.length-1]!==stop)dates.push(stop);
+    const data=dates.map(d=>{
+      const g=state.gold.filter(t=>t.date<=d).slice().sort((a,b)=>a.date.localeCompare(b.date));
+      let q=0,cost=0,sale=0;
+      g.forEach(t=>{if(t.type==="buy"){q+=+t.qty;cost+=mil(t.qty*t.price)+mil(t.fee)}else{let n=Math.min(q,+t.qty),avg=q?cost/q:0;q-=n;cost-=avg*n;sale+=mil(n*t.price)-mil(t.fee)}});
+      let bal=0,interest=0;
+      const tx=state.savings.filter(t=>t.date<=d).slice().sort((a,b)=>a.date.localeCompare(b.date));
+      const first=state.settings.startDate;
+      for(let i=0;i<=Math.max(0,dateDiff(first,d));i++){
+        let day=addDays(first,i);
+        tx.filter(t=>t.date===day).forEach(t=>{if(t.type==="deposit")bal+=mil(t.amount);else bal-=Math.min(bal,mil(t.amount))});
+        if(i<dateDiff(first,d)&&bal>0){let inc=bal*getRate(day)/365;bal+=inc;interest+=inc;}
+      }
+      return {date:d,gold:q*mil(state.settings.goldPrice)+sale,savings:bal};
+    });
+    const max=Math.max(1,...data.map(d=>Math.max(d.gold,d.savings)))*1.08;
+    ctx.font="11px system-ui";ctx.lineWidth=1;ctx.strokeStyle="rgba(168,179,199,.18)";ctx.fillStyle="#a8b3c7";
+    for(let i=0;i<=4;i++){let y=pad.t+ph*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText((max*(1-i/4)/1e6).toLocaleString("vi-VN",{maximumFractionDigits:0})+"tr",3,y+4);}
+    function line(key,color){ctx.beginPath();data.forEach((d,i)=>{let x=pad.l+pw*i/Math.max(1,data.length-1),y=pad.t+ph*(1-d[key]/max);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();}
+    line("gold","#f5c451");line("savings","#72a7ff");
+    ctx.fillStyle="#a8b3c7";ctx.fillText(start,pad.l,h-9);const label=stop;ctx.fillText(label,Math.max(pad.l,w-pad.r-70),h-9);
+  }
+  function renderLists(){
+    const gold=state.gold.slice().sort((a,b)=>b.date.localeCompare(a.date));
+    $("list-gold").innerHTML=gold.length?`<table><thead><tr><th>Ngày</th><th>Giao dịch</th><th class="num">Số lượng</th><th class="num">Giá/đơn vị</th><th class="num">Phí</th><th>Ghi chú</th><th></th></tr></thead><tbody>${gold.map(t=>`<tr><td>${esc(t.date)}</td><td>${t.type==="buy"?"Mua":"Bán"}</td><td class="num">${Number(t.qty).toLocaleString("vi-VN")}</td><td class="num">${Number(t.price).toLocaleString("vi-VN")} tr</td><td class="num">${Number(t.fee||0).toLocaleString("vi-VN")} tr</td><td>${esc(t.memo)}</td><td><button class="btn danger" data-del="gold" data-id="${t.id}">Xóa</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Chưa có giao dịch vàng.</div>`;
+    const sav=state.savings.slice().sort((a,b)=>b.date.localeCompare(a.date));
+    $("list-savings").innerHTML=sav.length?`<table><thead><tr><th>Ngày</th><th>Giao dịch</th><th class="num">Số tiền</th><th>Ghi chú</th><th></th></tr></thead><tbody>${sav.map(t=>`<tr><td>${esc(t.date)}</td><td>${t.type==="deposit"?"Gửi thêm":"Rút tiền"}</td><td class="num">${Number(t.amount).toLocaleString("vi-VN")} tr</td><td>${esc(t.memo)}</td><td><button class="btn danger" data-del="savings" data-id="${t.id}">Xóa</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Chưa có giao dịch tiết kiệm.</div>`;
+    const rates=state.rates.slice().sort((a,b)=>b.start.localeCompare(a.start));
+    $("list-rates").innerHTML=rates.length?`<table><thead><tr><th>Bắt đầu</th><th>Kết thúc</th><th class="num">Lãi suất năm</th><th>Ghi chú</th><th></th></tr></thead><tbody>${rates.map(t=>`<tr><td>${esc(t.start)}</td><td>${esc(t.end||"Đang áp dụng")}</td><td class="num">${Number(t.rate).toLocaleString("vi-VN")}%</td><td>${esc(t.memo)}</td><td><button class="btn danger" data-del="rates" data-id="${t.id}">Xóa</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Chưa có kỳ lãi suất.</div>`;
+  }
+  $("settingsForm").addEventListener("submit",e=>{e.preventDefault();const start=$("startDate").value,end=$("endDate").value;if(end<start){alert("Ngày kết thúc phải bằng hoặc sau ngày bắt đầu.");return}state.settings={...state.settings,startDate:start,endDate:end,goldPrice:Math.max(0,Number($("goldPrice").value)||0),goldUnit:$("goldUnit").value,note:$("note").value};save();});
+  $("goldForm").addEventListener("submit",e=>{e.preventDefault();const t={id:uid(),type:$("goldType").value,date:$("goldDate").value,qty:Number($("goldQty").value),price:Number($("goldTxnPrice").value),fee:Number($("goldFee").value)||0,memo:$("goldMemo").value};if(t.type==="sell"){const c=calculate();if(t.qty>c.qty+1e-8){alert(`Bạn chỉ còn khoảng ${c.qty.toLocaleString("vi-VN")} ${state.settings.goldUnit}.`);return}}state.gold.push(t);e.target.reset();$("goldDate").value=today();$("goldFee").value=0;save();});
+  $("savingsForm").addEventListener("submit",e=>{e.preventDefault();const t={id:uid(),type:$("savingsType").value,date:$("savingsDate").value,amount:Number($("savingsAmount").value),memo:$("savingsMemo").value};if(t.type==="withdraw"){const c=calculate();if(mil(t.amount)>c.balance){alert("Số tiền rút lớn hơn số dư tiết kiệm ước tính.");return}}state.savings.push(t);e.target.reset();$("savingsDate").value=today();save();});
+  $("rateForm").addEventListener("submit",e=>{e.preventDefault();const t={id:uid(),start:$("rateStart").value,end:$("rateEnd").value,rate:Number($("ratePercent").value),memo:$("rateMemo").value};if(t.end&&t.end<t.start){alert("Ngày kết thúc kỳ lãi suất phải bằng hoặc sau ngày bắt đầu.");return}state.rates.push(t);e.target.reset();$("rateStart").value=today();save();});
+  document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));["gold","savings","rates"].forEach(k=>$("panel-"+k).classList.toggle("hidden",k!==b.dataset.tab));}));
+  document.querySelectorAll("[data-list]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-list]").forEach(x=>x.classList.toggle("active",x===b));["gold","savings","rates"].forEach(k=>$("list-"+k).classList.toggle("hidden",k!==b.dataset.list));}));
+  document.addEventListener("click",e=>{const b=e.target.closest("[data-del]");if(!b)return;const {del,id}=b.dataset;if(!confirm("Xóa giao dịch này?"))return;state[del]=state[del].filter(t=>t.id!==id);save();});
+  $("exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="vang-vs-tiet-kiem-backup.json";a.click();URL.revokeObjectURL(url);});
+  $("importBtn").addEventListener("click",()=>$("importFile").click());
+  $("importFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!data.settings||!Array.isArray(data.gold)||!Array.isArray(data.savings)||!Array.isArray(data.rates))throw Error("invalid");if(!confirm("Nhập dữ liệu sẽ thay thế dữ liệu hiện có. Tiếp tục?"))return;state=data;save();alert("Đã nhập dữ liệu.");}catch{alert("File không hợp lệ hoặc bị lỗi.");}e.target.value="";});
+  $("resetBtn").addEventListener("click",()=>{if(!confirm("Đặt lại toàn bộ dữ liệu về mẫu ban đầu? Hãy xuất dữ liệu sao lưu trước nếu cần."))return;state=defaultState();save();});
+  window.addEventListener("resize",()=>drawChart());
+  // Start forms on today's date; sample portfolio begins at the configured start date.
+  ["goldDate","savingsDate","rateStart"].forEach(id=>$(id).value=today());
+  render();
+})();
+</script>
 </body>
 </html>
