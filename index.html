@@ -48,7 +48,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
       <div class="small" id="goldDetails">—</div>
     </div>
     <div class="card span-4">
-      <div class="metric-label">Số dư tiết kiệm ước tính</div>
+      <div class="metric-label">Tổng tài sản tiết kiệm ước tính (gốc + lãi)</div>
       <div class="metric blue" id="savingsValue">—</div>
       <div class="small" id="savingsDetails">—</div>
     </div>
@@ -242,12 +242,14 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
     const goldProfit=goldValue-bought;
     const savingsTx=state.savings.filter(t=>t.date<=asOf).slice().sort((a,b)=>a.date.localeCompare(b.date));
     const savings=calculateSavings(asOf);
-    const balance=savings.balance, interestTotal=savings.interestTotal;
+    const principalBalance=savings.balance, interestTotal=savings.interestTotal;
+    // Compare total wealth, including interest accrued but not yet paid by the bank.
+    const balance=principalBalance+savings.pendingInterest;
     const dayCount=savings.dayCount;
     const goldInitial = state.gold.filter(t=>t.date<=asOf && t.type==="buy").reduce((s,t)=>s+mil(t.qty*t.price+(Number(t.fee)||0)),0);
     const savingsNetDeposits=savingsTx.reduce((s,t)=>s+(t.type==="deposit"?mil(t.amount):-mil(t.amount)),0);
     const be=qty>0?(balance-saleCash)/qty:NaN;
-    return {asOf,qty,cost,bought,soldQty,saleCash,goldValue,goldProfit,balance,interestTotal,be,goldInitial,savingsNetDeposits,dayCount};
+    return {asOf,qty,cost,bought,soldQty,saleCash,goldValue,goldProfit,balance,principalBalance,interestTotal,be,goldInitial,savingsNetDeposits,dayCount};
   }
   function render(){
     syncSettings();
@@ -255,7 +257,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
     $("goldValue").textContent=money(c.goldValue);
     $("goldDetails").textContent=`${c.qty.toLocaleString("vi-VN",{maximumFractionDigits:4})} ${state.settings.goldUnit} còn lại · giá thu mua ${Number(state.settings.goldPrice).toLocaleString("vi-VN")} triệu/${state.settings.goldUnit}`;
     $("savingsValue").textContent=money(c.balance);
-    $("savingsDetails").textContent=`Lãi cộng dồn ước tính: ${money(c.interestTotal)}`;
+    $("savingsDetails").textContent=`Gốc trong tài khoản: ${money(c.principalBalance)} · Lãi tích lũy ước tính: ${money(c.interestTotal)}`;
     const gap=c.goldValue-c.balance;
     $("leaderValue").textContent=Math.abs(gap)<1?"ĐANG HÒA":gap>0?"VÀNG ĐANG DẪN":"TIẾT KIỆM DẪN";
     $("leaderValue").className="metric "+(Math.abs(gap)<1?"":gap>0?"gold":"blue");
@@ -294,8 +296,8 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
       const g=state.gold.filter(t=>t.date<=d).slice().sort((a,b)=>a.date.localeCompare(b.date));
       let q=0,cost=0,sale=0;
       g.forEach(t=>{if(t.type==="buy"){q+=+t.qty;cost+=mil(t.qty*t.price)+mil(t.fee)}else{let n=Math.min(q,+t.qty),avg=q?cost/q:0;q-=n;cost-=avg*n;sale+=mil(n*t.price)-mil(t.fee)}});
-      const bal=calculateSavings(d).balance;
-      return {date:d,gold:q*mil(state.settings.goldPrice)+sale,savings:bal};
+      const savingsAtDate=calculateSavings(d);
+      return {date:d,gold:q*mil(state.settings.goldPrice)+sale,savings:savingsAtDate.balance+savingsAtDate.pendingInterest};
     });
     const max=Math.max(1,...data.map(d=>Math.max(d.gold,d.savings)))*1.08;
     ctx.font="11px system-ui";ctx.lineWidth=1;ctx.strokeStyle="rgba(168,179,199,.18)";ctx.fillStyle="#a8b3c7";
