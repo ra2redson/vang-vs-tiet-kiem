@@ -39,7 +39,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
     </div>
   </header>
 
-  <div class="notice">Dữ liệu được lưu trong trình duyệt trên thiết bị này (localStorage). Hãy bấm <b>Xuất dữ liệu</b> định kỳ để sao lưu; dữ liệu không tự đồng bộ giữa các thiết bị. Giá vàng hiện tại cần được nhập thủ công trong phiên bản này.</div>
+  <div class="notice">Dữ liệu được lưu trong trình duyệt trên thiết bị này (localStorage). Hãy bấm <b>Xuất dữ liệu</b> định kỳ để sao lưu; dữ liệu không tự đồng bộ giữa các thiết bị. Giá vàng có thể nhập thủ công hoặc nạp bản giá DOJI gần nhất do GitHub Actions lưu lại. Bản giá tự động không phải cập nhật tức thời.</div>
 
   <section class="grid">
     <div class="card span-4">
@@ -94,6 +94,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
         <div class="field"><label for="startDate">Ngày bắt đầu kèo</label><input id="startDate" type="date" required></div>
         <div class="field"><label for="endDate">Ngày kết thúc kèo</label><input id="endDate" type="date" required></div>
         <div class="field"><label for="goldPrice">Giá tiệm thu mua vàng hôm nay (triệu/cây)</label><input id="goldPrice" type="number" min="0" step="0.01" required></div>
+        <div class="field"><label>Giá DOJI tự động</label><button class="btn" type="button" id="loadDojiPrice">Nạp giá DOJI gần nhất</button><small class="muted" id="dojiStatus">Chưa nạp dữ liệu tự động.</small></div>
         <div class="field"><label for="goldUnit">Đơn vị vàng</label><select id="goldUnit"><option value="cây">Cây/lượng</option><option value="chỉ">Chỉ</option></select></div>
         <div class="field"><label for="currency">Đơn vị tiền</label><select id="currency"><option value="VND">VNĐ</option></select></div>
         <div class="field"><label for="note">Ghi chú kèo (không bắt buộc)</label><input id="note" type="text" placeholder="Ví dụ: Kèo với bạn A"></div>
@@ -328,6 +329,34 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
   window.addEventListener("resize",()=>drawChart());
   // Start forms on today's date; sample portfolio begins at the configured start date.
   ["goldDate","savingsDate","rateStart"].forEach(id=>$(id).value=today());
+
+  // Load the latest saved DOJI snapshot. GitHub Actions updates data/doji-price.json daily.
+  $("loadDojiPrice")?.addEventListener("click", async () => {
+    const status = $("dojiStatus");
+    const btn = $("loadDojiPrice");
+    btn.disabled = true;
+    status.textContent = "Đang tải dữ liệu DOJI...";
+    try {
+      const url = new URL("./data/doji-price.json", window.location.href);
+      url.searchParams.set("_", String(Date.now()));
+      const res = await fetch(url.toString(), {cache:"no-store"});
+      if (!res.ok) throw new Error("Chưa có file giá DOJI (HTTP " + res.status + ").");
+      const data = await res.json();
+      if (!Number.isFinite(Number(data.buyVndPerLuong)) || Number(data.buyVndPerLuong) <= 0) {
+        throw new Error("Dữ liệu DOJI không hợp lệ.");
+      }
+      state.settings.goldPrice = Number(data.buyVndPerLuong) / 1_000_000;
+      $("goldPrice").value = state.settings.goldPrice;
+      save();
+      const t = data.fetchedAt ? new Date(data.fetchedAt).toLocaleString("vi-VN") : "không rõ thời điểm";
+      status.textContent = `Đã nạp giá mua vào DOJI: ${state.settings.goldPrice.toLocaleString("vi-VN")} triệu/cây · lấy lúc ${t}.`;
+    } catch (err) {
+      status.textContent = "Không nạp được giá tự động: " + (err?.message || "lỗi không xác định") + " Bạn vẫn có thể nhập giá thủ công.";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
   render();
 })();
 </script>
