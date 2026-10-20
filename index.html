@@ -11,6 +11,7 @@
 main{max-width:1100px;margin:auto;padding:24px 16px 56px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
 h1{font-size:clamp(26px,4vw,38px);line-height:1.1;margin:0 0 8px}h1 span{color:var(--gold)}h2{font-size:18px;margin:0 0 14px}h3{font-size:15px;margin:0 0 10px}.sub,.muted{color:var(--muted)}.sub{margin:0}
 .actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);padding:10px 13px;font-weight:650;cursor:pointer}.btn:hover{filter:brightness(1.15)}.btn.primary{background:var(--gold);border-color:var(--gold);color:#241b08}.btn.danger{border-color:#70404a;color:#ffb4b4}
+.doji-board{border:1px solid #66552e;background:linear-gradient(135deg,rgba(64,49,20,.72),rgba(21,30,48,.96));border-radius:16px;padding:16px 18px;margin:0 0 16px}.doji-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.doji-prices{display:grid;grid-template-columns:1fr 1fr;gap:12px}.doji-price{border:1px solid rgba(245,196,81,.25);border-radius:12px;padding:12px;background:rgba(0,0,0,.12)}.doji-price .metric{font-size:clamp(22px,3vw,30px)}.doji-price .metric-label{margin-bottom:2px}.doji-meta{font-size:12px;color:var(--muted);margin-top:10px}.doji-refresh{white-space:nowrap}@media(max-width:430px){.doji-prices{grid-template-columns:1fr}.doji-head .btn{width:100%}}
 .notice{border:1px solid #67562d;background:#2b2518;color:#f8e7b0;border-radius:12px;padding:12px 14px;margin:14px 0 20px;font-size:13px}
 .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}.card{background:linear-gradient(145deg,rgba(24,35,55,.97),rgba(18,27,44,.97));border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
 .metric-label{font-size:13px;color:var(--muted);margin-bottom:5px}.metric{font-size:clamp(22px,3vw,31px);font-weight:800;letter-spacing:-.6px;overflow-wrap:anywhere}.gold{color:var(--gold)}.blue{color:var(--blue)}.green{color:var(--green)}.red{color:var(--red)}.small{font-size:12px;color:var(--muted)}.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:750;background:#27364d;color:var(--text)}
@@ -38,6 +39,18 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
       <input type="file" id="importFile" accept="application/json,.json" class="hidden">
     </div>
   </header>
+
+  <section class="doji-board" aria-label="Bảng giá DOJI">
+    <div class="doji-head">
+      <div><h2 style="margin:0 0 3px">🟡 Giá DOJI · Nhẫn tròn 9999 Hưng Thịnh Vượng</h2><div class="small">Đơn vị: triệu đồng/cây (lượng) · Giá mua vào dùng để tính giá trị vàng của bạn</div></div>
+      <button class="btn doji-refresh" id="refreshDojiTopBtn" type="button">↻ Cập nhật giá</button>
+    </div>
+    <div class="doji-prices">
+      <div class="doji-price"><div class="metric-label">DOJI mua vào · DOJI thu mua của bạn</div><div class="metric green" id="dojiBuyTop">—</div></div>
+      <div class="doji-price"><div class="metric-label">DOJI bán ra · giá bạn mua từ DOJI</div><div class="metric gold" id="dojiSellTop">—</div></div>
+    </div>
+    <div class="doji-meta" id="dojiUpdatedTop">Đang tải thời điểm cập nhật…</div>
+  </section>
 
   <div class="notice">Dữ liệu được lưu trong trình duyệt trên thiết bị này (localStorage). Hãy bấm <b>Xuất dữ liệu</b> định kỳ để sao lưu; dữ liệu không tự đồng bộ giữa các thiết bị. Giá vàng có thể nhập thủ công hoặc nạp bản giá DOJI gần nhất do GitHub Actions lưu lại. Bản giá tự động không phải cập nhật tức thời.</div>
 
@@ -94,7 +107,7 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
         <div class="field"><label for="startDate">Ngày bắt đầu kèo</label><input id="startDate" type="date" required></div>
         <div class="field"><label for="endDate">Ngày kết thúc kèo</label><input id="endDate" type="date" required></div>
         <div class="field"><label for="goldPrice">Giá tiệm thu mua vàng hôm nay (triệu/cây)</label><input id="goldPrice" type="number" min="0" step="0.01" required></div>
-        <div class="field"><label>Đồng bộ giá DOJI</label><small class="muted" id="dojiStatus">Đang kiểm tra giá DOJI gần nhất…</small></div>
+        <div class="field"><label>Đồng bộ giá DOJI</label><small class="muted" id="dojiStatus">Đang kiểm tra giá DOJI gần nhất…</small><button class="btn" id="refreshDojiBtn" type="button" style="margin-top:8px">↻ Kiểm tra giá mới ngay</button><small class="muted">Nút này tải lại dữ liệu DOJI mới nhất đã được GitHub Actions lưu. Nếu nguồn chưa được cập nhật, giá sẽ chưa thay đổi.</small></div>
         <div class="field"><label for="goldUnit">Đơn vị vàng</label><select id="goldUnit"><option value="cây">Cây/lượng</option><option value="chỉ">Chỉ</option></select></div>
         <div class="field"><label for="currency">Đơn vị tiền</label><select id="currency"><option value="VND">VNĐ</option></select></div>
         <div class="field"><label for="note">Ghi chú kèo (không bắt buộc)</label><input id="note" type="text" placeholder="Ví dụ: Kèo với bạn A"></div>
@@ -332,7 +345,12 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
   // Tự nạp giá DOJI khi mở trang, rồi kiểm tra lại mỗi 5 phút.
   async function refreshDojiPrice() {
     const status = $("dojiStatus");
+    const refreshBtn = $("refreshDojiBtn");
     if (!status) return;
+    if (refreshBtn) {
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = "Đang kiểm tra…";
+    }
     try {
       const url = new URL("./data/doji-price.json", window.location.href);
       url.searchParams.set("_", String(Date.now()));
@@ -340,9 +358,13 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
       if (!res.ok) throw new Error("Chưa có bản giá tự động (HTTP " + res.status + ").");
       const data = await res.json();
       const buy = Number(data.buyVndPerLuong);
-      if (!Number.isFinite(buy) || buy <= 0) throw new Error("Dữ liệu giá không hợp lệ.");
+      const sell = Number(data.sellVndPerLuong);
+      if (!Number.isFinite(buy) || buy <= 0 || !Number.isFinite(sell) || sell <= 0) throw new Error("Dữ liệu giá mua vào/bán ra không hợp lệ.");
       const fetchedAt = data.fetchedAt ? new Date(data.fetchedAt) : null;
-      const stamp = fetchedAt && !Number.isNaN(fetchedAt.getTime()) ? fetchedAt.toLocaleString("vi-VN") : "không rõ thời điểm";
+      const stamp = fetchedAt && !Number.isNaN(fetchedAt.getTime()) ? fetchedAt.toLocaleString("vi-VN", {dateStyle:"short", timeStyle:"medium", timeZone:"Asia/Ho_Chi_Minh"}) + " (giờ Việt Nam)" : "không rõ thời điểm";
+      $("dojiBuyTop").textContent = (buy / 1_000_000).toLocaleString("vi-VN", {maximumFractionDigits: 3}) + " triệu";
+      $("dojiSellTop").textContent = (sell / 1_000_000).toLocaleString("vi-VN", {maximumFractionDigits: 3}) + " triệu";
+      $("dojiUpdatedTop").textContent = "Dữ liệu DOJI được lấy lúc: " + stamp + " · Nguồn: bản giá gần nhất GitHub Actions lưu lại.";
       const currentStamp = data.fetchedAt || "";
       if (currentStamp && currentStamp !== (state.settings.dojiFetchedAt || "")) {
         state.settings.goldPrice = buy / 1_000_000;
@@ -355,8 +377,15 @@ footer{margin-top:20px;color:var(--muted);font-size:12px}
       status.textContent = `Tự động · giá mua vào ${(buy / 1_000_000).toLocaleString("vi-VN")} triệu/lượng · cập nhật lúc ${stamp}`;
     } catch (err) {
       status.textContent = "Chưa nạp được giá DOJI tự động: " + (err?.message || "lỗi không xác định") + " · vẫn dùng giá đã lưu/nhập tay.";
+    } finally {
+      if (refreshBtn) {
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = "↻ Kiểm tra giá mới ngay";
+      }
     }
   }
+  $("refreshDojiBtn")?.addEventListener("click", refreshDojiPrice);
+  $("refreshDojiTopBtn")?.addEventListener("click", refreshDojiPrice);
   refreshDojiPrice();
   setInterval(refreshDojiPrice, 5 * 60 * 1000);
   window.addEventListener("focus", refreshDojiPrice);
