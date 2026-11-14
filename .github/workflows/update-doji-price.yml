@@ -3,8 +3,11 @@ name: Update DOJI gold price
 on:
   workflow_dispatch:
   schedule:
-    # Daily at 02:30 UTC (09:30 Vietnam time).
-    - cron: "30 2 * * *"
+    # Vietnam is UTC+7. Try several times between 09:05 and 09:50 Vietnam time.
+    - cron: "5 2 * * *"    # 09:05 Vietnam
+    - cron: "20 2 * * *"   # 09:20 Vietnam
+    - cron: "35 2 * * *"   # 09:35 Vietnam
+    - cron: "50 2 * * *"   # 09:50 Vietnam
 
 permissions:
   contents: write
